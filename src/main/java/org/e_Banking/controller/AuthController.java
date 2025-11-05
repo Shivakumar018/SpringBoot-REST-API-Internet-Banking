@@ -1,6 +1,7 @@
 package org.e_Banking.controller;
 
 
+import org.e_Banking.dto.ResponseDto;
 import org.e_Banking.dto.UserDto;
 import org.e_Banking.entity.TempUser;
 import org.e_Banking.service.UserService;
@@ -23,12 +24,15 @@ public class AuthController {
 	private final UserService userService;
 
 	@PostMapping("/register")
-	public ResponseEntity<TempUser> register(@RequestBody @Valid UserDto dto) {
+	public ResponseEntity<ResponseDto> register(@RequestBody @Valid UserDto dto) {
 		return userService.register(dto);
 	}
 
-	@GetMapping("/verify/{email}")
-	public ResponseEntity<TempUser> fetch(@PathVariable String email) {
-		return userService.fetch(email);
+	
+	@GetMapping("/check/{email}")
+	public String check(@PathVariable String email) {
+		return userService.check(email);
 	}
+
 }
+
