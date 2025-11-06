@@ -1,13 +1,11 @@
 package org.e_Banking.controller;
 
 
+import org.e_Banking.dto.OtpDto;
 import org.e_Banking.dto.ResponseDto;
 import org.e_Banking.dto.UserDto;
-import org.e_Banking.entity.TempUser;
 import org.e_Banking.service.UserService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,11 +25,10 @@ public class AuthController {
 	public ResponseEntity<ResponseDto> register(@RequestBody @Valid UserDto dto) {
 		return userService.register(dto);
 	}
-
 	
-	@GetMapping("/check/{email}")
-	public String check(@PathVariable String email) {
-		return userService.check(email);
+	@PostMapping("/verify-otp")
+	public ResponseEntity<ResponseDto> verfiyOtp(@RequestBody OtpDto dto) {
+		return userService.verifyOtp(dto);
 	}
 
 }

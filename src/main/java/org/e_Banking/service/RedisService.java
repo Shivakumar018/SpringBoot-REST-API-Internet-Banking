@@ -15,11 +15,11 @@ public class RedisService {
 	private final RedisTemplate<String, Object> redisTemplate;
 
 	public void saveUserDto(UserDto dto) {
-		redisTemplate.opsForValue().set("dto:" + dto.getEmail(), dto, Duration.ofSeconds(40));
+		redisTemplate.opsForValue().set("dto:" + dto.getEmail(), dto, Duration.ofMinutes(30));
 	}
 
 	public void saveUserOtp(String email, int otp) {
-		redisTemplate.opsForValue().set("otp:" + email, otp, Duration.ofSeconds(22));
+		redisTemplate.opsForValue().set("otp:" + email, otp, Duration.ofMinutes(2));
 	}
 
 	public int fetchOtp(String email) {
