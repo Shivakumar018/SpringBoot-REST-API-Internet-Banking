@@ -4,9 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-public class FailedToSendOtpException extends RuntimeException {
-	private String message = "Failed to Send OTP";
+public class DataNotFoundException extends RuntimeException{
+	private String message = "Data Not Found";
+
 }

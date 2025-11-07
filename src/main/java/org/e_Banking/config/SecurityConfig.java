@@ -7,23 +7,25 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;	
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-	
+
 	@Bean
 	PasswordEncoder encoder() {
 		return new BCryptPasswordEncoder();
 	}
 
 	private String[] swaggerPaths = { "/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**", "/webjars/**" };
+
 	@Bean
 	SecurityFilterChain security(HttpSecurity httpSecurity) throws Exception {
 		return httpSecurity.csrf(x -> x.disable())
 				.authorizeHttpRequests(x -> x.requestMatchers("/api/v1/auth/**").permitAll()
-						.requestMatchers(swaggerPaths).permitAll().anyRequest().authenticated())
+						.requestMatchers(swaggerPaths).permitAll().requestMatchers("/actuator/health/**").permitAll())
+																													
 				.formLogin(x -> x.disable()).httpBasic(x -> x.disable())
 				.sessionManagement(x -> x.sessionCreationPolicy(SessionCreationPolicy.STATELESS)).build();
 	}
