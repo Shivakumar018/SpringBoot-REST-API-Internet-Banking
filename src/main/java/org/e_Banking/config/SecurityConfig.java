@@ -2,6 +2,8 @@ package org.e_Banking.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
@@ -18,14 +20,18 @@ public class SecurityConfig {
 		return new BCryptPasswordEncoder();
 	}
 
-	private String[] swaggerPaths = { "/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**", "/webjars/**" };
+	@Bean
+	AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+		return config.getAuthenticationManager();
+	}
+
+	private String[] swaggerPaths = { "/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**", "/", "/webjars/**" };
 
 	@Bean
 	SecurityFilterChain security(HttpSecurity httpSecurity) throws Exception {
 		return httpSecurity.csrf(x -> x.disable())
 				.authorizeHttpRequests(x -> x.requestMatchers("/api/v1/auth/**").permitAll()
 						.requestMatchers(swaggerPaths).permitAll().requestMatchers("/actuator/health/**").permitAll())
-																													
 				.formLogin(x -> x.disable()).httpBasic(x -> x.disable())
 				.sessionManagement(x -> x.sessionCreationPolicy(SessionCreationPolicy.STATELESS)).build();
 	}

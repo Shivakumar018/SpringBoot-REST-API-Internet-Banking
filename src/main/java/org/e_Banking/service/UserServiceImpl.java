@@ -3,6 +3,7 @@ package org.e_Banking.service;
 import java.security.SecureRandom;
 
 import org.e_Banking.dto.BankingRole;
+import org.e_Banking.dto.LoginDto;
 import org.e_Banking.dto.OtpDto;
 import org.e_Banking.dto.ResetPasswordDto;
 import org.e_Banking.dto.ResponseDto;
@@ -13,8 +14,13 @@ import org.e_Banking.exceptionHandling.DataNotFoundException;
 import org.e_Banking.exceptionHandling.ExpiredException;
 import org.e_Banking.exceptionHandling.MissMatchException;
 import org.e_Banking.repository.UserRepository;
+import org.e_Banking.util.JwtUtil;
 import org.e_Banking.util.MessageSendingHelper;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +34,9 @@ public class UserServiceImpl implements UserService {
 	private final UserRepository userRepository;
 	private final MessageSendingHelper messageSendingHelper;
 	private final PasswordEncoder passwordEncoder;
+	private final AuthenticationManager authenticationManager;
+	private final JwtUtil jwtUtil;
+	private final UserDetailsService userDetailsService;
 
 	@Override
 	public ResponseEntity<ResponseDto> register(UserDto dto) {
@@ -45,7 +54,7 @@ public class UserServiceImpl implements UserService {
 		}
 		return null;
 	}
-	
+
 	@Override
 	public ResponseEntity<ResponseDto> verifyOtp(OtpDto dto) {
 		int otp = redisService.fetchOtp(dto.getEmail());
@@ -66,7 +75,7 @@ public class UserServiceImpl implements UserService {
 			}
 		}
 	}
-	
+
 	@Override
 	public ResponseEntity<ResponseDto> resendOtp(String email) {
 		if (redisService.fetchOtp(email) == 0)
@@ -113,6 +122,15 @@ public class UserServiceImpl implements UserService {
 				}
 			}
 		}
+	}
+
+
+	@Override
+	public ResponseEntity<ResponseDto> login(LoginDto dto) {
+		authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword()));
+		UserDetails userDetails = userDetailsService.loadUserByUsername(dto.getEmail());
+		String token = jwtUtil.generateToken(userDetails);
+		return ResponseEntity.ok(new ResponseDto("Login Success", token));
 	}
 
 }

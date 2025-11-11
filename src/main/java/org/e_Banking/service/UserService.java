@@ -5,7 +5,10 @@ import org.e_Banking.dto.OtpDto;
 import org.e_Banking.dto.ResetPasswordDto;
 import org.e_Banking.dto.ResponseDto;
 import org.e_Banking.dto.UserDto;
+import org.e_Banking.dto.LoginDto;
 import org.springframework.http.ResponseEntity;
+
+import jakarta.validation.Valid;
 
 public interface UserService {
 
@@ -14,6 +17,7 @@ public interface UserService {
 	ResponseEntity<ResponseDto> resetPassword(ResetPasswordDto dto);
 	ResponseEntity<ResponseDto> resendOtp(String email);
 	ResponseEntity<ResponseDto> forgotPassword(String email);
+	ResponseEntity<ResponseDto> login(LoginDto dto);
 }
 
 

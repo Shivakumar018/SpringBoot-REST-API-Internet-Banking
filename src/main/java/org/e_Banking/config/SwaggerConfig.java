@@ -3,6 +3,9 @@ package org.e_Banking.config;
 import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
@@ -10,6 +13,7 @@ import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.servers.Server;
 
 @Configuration
+@Controller
 public class SwaggerConfig {
 	@Bean
 	OpenAPI ebankingOpenAPI() {
@@ -22,5 +26,10 @@ public class SwaggerConfig {
 								.url("https://www.apache.org/licenses/LICENSE-2.0.html")))
 				.servers(List.of(new Server().url("http://localhost").description("Local Development Server"),
 						new Server().url("https://api.ebanking.com").description("Production Server")));
+	}
+	
+	@GetMapping("/")
+	public String loadSwagger() {
+		return "redirect:swagger-ui/index.html";
 	}
 }

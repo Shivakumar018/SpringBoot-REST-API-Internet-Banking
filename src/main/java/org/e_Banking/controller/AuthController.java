@@ -5,6 +5,7 @@ import org.e_Banking.dto.OtpDto;
 import org.e_Banking.dto.ResetPasswordDto;
 import org.e_Banking.dto.ResponseDto;
 import org.e_Banking.dto.UserDto;
+import org.e_Banking.dto.LoginDto;
 import org.e_Banking.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -49,6 +50,9 @@ public class AuthController {
 		return userService.resetPassword(dto);
 	}
 	
-
+	@PostMapping("/login")
+	public ResponseEntity<ResponseDto> login(@RequestBody @Valid LoginDto dto) {
+		return userService.login(dto);
+	}
 }
 
