@@ -7,13 +7,20 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+	
+	private final JwtFilter jwtFilter;
 
 	@Bean
 	PasswordEncoder encoder() {
@@ -29,10 +36,18 @@ public class SecurityConfig {
 
 	@Bean
 	SecurityFilterChain security(HttpSecurity httpSecurity) throws Exception {
-		return httpSecurity.csrf(x -> x.disable())
-				.authorizeHttpRequests(x -> x.requestMatchers("/api/v1/auth/**").permitAll()
-						.requestMatchers(swaggerPaths).permitAll().requestMatchers("/actuator/health/**").permitAll())
-				.formLogin(x -> x.disable()).httpBasic(x -> x.disable())
-				.sessionManagement(x -> x.sessionCreationPolicy(SessionCreationPolicy.STATELESS)).build();
+		return httpSecurity
+				.csrf(x -> x.disable())
+				.authorizeHttpRequests(x -> x
+						.requestMatchers("/api/v1/user/**").hasRole("USER")
+						.requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
+						.requestMatchers("/api/v1/auth/**").permitAll()
+						.requestMatchers(swaggerPaths).permitAll()
+						.anyRequest().authenticated())
+				.formLogin(x -> x.disable())
+				.httpBasic(x -> x.disable())
+				.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+				.sessionManagement(x -> x.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+				.build();
 	}
 }

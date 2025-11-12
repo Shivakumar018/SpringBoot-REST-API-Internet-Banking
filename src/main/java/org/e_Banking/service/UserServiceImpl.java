@@ -124,7 +124,6 @@ public class UserServiceImpl implements UserService {
 		}
 	}
 
-
 	@Override
 	public ResponseEntity<ResponseDto> login(LoginDto dto) {
 		authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword()));
