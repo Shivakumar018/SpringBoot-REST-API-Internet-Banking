@@ -32,7 +32,7 @@ public class SecurityConfig {
 		return config.getAuthenticationManager();
 	}
 
-	private String[] swaggerPaths = { "/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**", "/", "/webjars/**" };
+	private String[] swaggerPaths = { "/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**", "/", "/webjars/**","/actuator/**" };
 
 	@Bean
 	SecurityFilterChain security(HttpSecurity httpSecurity) throws Exception {

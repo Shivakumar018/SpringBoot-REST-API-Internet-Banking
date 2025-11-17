@@ -9,6 +9,7 @@ import org.e_Banking.dto.OtpDto;
 import org.e_Banking.dto.ResetPasswordDto;
 import org.e_Banking.dto.ResponseDto;
 import org.e_Banking.dto.SavingAccountDto;
+import org.e_Banking.dto.SavingAccountMapper;
 import org.e_Banking.dto.SavingAccountResponseDto;
 import org.e_Banking.dto.UserDto;
 import org.e_Banking.entity.SavingBankAccount;
@@ -43,6 +44,7 @@ public class UserServiceImpl implements UserService {
 	private final JwtUtil jwtUtil;
 	private final UserDetailsService userDetailsService;
 	private final SavingAccountRepository savingAccountRepository;
+	private final SavingAccountMapper mapper;
 
 	@Override
 	public ResponseEntity<ResponseDto> register(UserDto dto) {
@@ -165,9 +167,7 @@ public class UserServiceImpl implements UserService {
 			savingAccountRepository.save(bankAccount);
 			user.setBankAccount(bankAccount);
 			userRepository.save(user);
-			SavingAccountResponseDto dto = new SavingAccountResponseDto(bankAccount.getAccountNumber(),
-					bankAccount.getFullName(), bankAccount.getAddress(), bankAccount.getIfscCode(),
-					bankAccount.getBalance());
+			SavingAccountResponseDto dto = mapper.toDto(bankAccount);
 			return ResponseEntity.status(201).body(new ResponseDto("Account Created Success ", dto));
 		}
 	}
