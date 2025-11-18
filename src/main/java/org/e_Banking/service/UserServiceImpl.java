@@ -2,14 +2,13 @@ package org.e_Banking.service;
 
 import java.security.Principal;
 import java.security.SecureRandom;
+import java.util.LinkedHashMap;
 
-import org.e_Banking.dto.BankingRole;
 import org.e_Banking.dto.LoginDto;
 import org.e_Banking.dto.OtpDto;
 import org.e_Banking.dto.ResetPasswordDto;
 import org.e_Banking.dto.ResponseDto;
 import org.e_Banking.dto.SavingAccountDto;
-import org.e_Banking.dto.SavingAccountMapper;
 import org.e_Banking.dto.SavingAccountResponseDto;
 import org.e_Banking.dto.UserDto;
 import org.e_Banking.entity.SavingBankAccount;
@@ -18,6 +17,8 @@ import org.e_Banking.exceptionHandling.DataExistsException;
 import org.e_Banking.exceptionHandling.DataNotFoundException;
 import org.e_Banking.exceptionHandling.ExpiredException;
 import org.e_Banking.exceptionHandling.MissMatchException;
+import org.e_Banking.mapper.SavingAccountMapper;
+import org.e_Banking.mapper.UserMapper;
 import org.e_Banking.repository.SavingAccountRepository;
 import org.e_Banking.repository.UserRepository;
 import org.e_Banking.util.JwtUtil;
@@ -45,7 +46,8 @@ public class UserServiceImpl implements UserService {
 	private final UserDetailsService userDetailsService;
 	private final SavingAccountRepository savingAccountRepository;
 	private final SavingAccountMapper mapper;
-
+	private final UserMapper userMapper;
+	
 	@Override
 	public ResponseEntity<ResponseDto> register(UserDto dto) {
 		if (redisService.fetchUserDto(dto.getEmail()) == null) {
@@ -71,9 +73,7 @@ public class UserServiceImpl implements UserService {
 		else {
 			if (otp == dto.getOtp()) {
 				UserDto userDto = redisService.fetchUserDto(dto.getEmail());
-				User user = new User(null, userDto.getName(), userDto.getEmail(), userDto.getMobile(), userDto.getDob(),
-						passwordEncoder.encode(userDto.getPassword()), BankingRole.valueOf(userDto.getRole()), null,
-						null, null);
+				User user = userMapper.toEntity(userDto);
 				userRepository.save(user);
 				redisService.deleteUserDto(dto.getEmail());
 				redisService.deleteUserOtp(dto.getEmail());
@@ -125,8 +125,9 @@ public class UserServiceImpl implements UserService {
 					User user = userRepository.findByEmail(dto.getEmail());
 					user.setPassword(passwordEncoder.encode(dto.getPassword()));
 					userRepository.save(user);
-
-					return ResponseEntity.status(200).body(new ResponseDto("Password Reset Success", dto.getEmail()));
+					redisService.deleteUserOtp(dto.getEmail());
+					return ResponseEntity.status(200)
+							.body(new ResponseDto("Password Reset Success", userMapper.toDto(user)));
 				}
 			}
 		}
@@ -137,7 +138,10 @@ public class UserServiceImpl implements UserService {
 		authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword()));
 		UserDetails userDetails = userDetailsService.loadUserByUsername(dto.getEmail());
 		String token = jwtUtil.generateToken(userDetails);
-		return ResponseEntity.ok(new ResponseDto("Login Success", token));
+		LinkedHashMap<String, Object> map = new LinkedHashMap<String, Object>();
+		map.put("token", token);
+		map.put("user", userMapper.toDto(userRepository.findByEmail(dto.getEmail())));
+		return ResponseEntity.ok(new ResponseDto("Login Success", map));
 	}
 
 	@Override

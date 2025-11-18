@@ -1,5 +1,6 @@
-package org.e_Banking.dto;
+package org.e_Banking.mapper;
 
+import org.e_Banking.dto.SavingAccountResponseDto;
 import org.e_Banking.entity.SavingBankAccount;
 import org.mapstruct.Mapper;
 
@@ -7,4 +8,5 @@ import org.mapstruct.Mapper;
 public interface SavingAccountMapper {
 
 	SavingAccountResponseDto toDto(SavingBankAccount entity);
+
 }
