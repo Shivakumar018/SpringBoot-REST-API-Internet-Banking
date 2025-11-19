@@ -3,14 +3,20 @@ package org.e_Banking.service;
 import java.security.Principal;
 import java.security.SecureRandom;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
+import org.e_Banking.dto.BankBalanceDto;
 import org.e_Banking.dto.LoginDto;
 import org.e_Banking.dto.OtpDto;
+import org.e_Banking.dto.RazorpayDto;
 import org.e_Banking.dto.ResetPasswordDto;
 import org.e_Banking.dto.ResponseDto;
 import org.e_Banking.dto.SavingAccountDto;
 import org.e_Banking.dto.SavingAccountResponseDto;
 import org.e_Banking.dto.UserDto;
+import org.e_Banking.entity.BankTransactions;
 import org.e_Banking.entity.SavingBankAccount;
 import org.e_Banking.entity.User;
 import org.e_Banking.exceptionHandling.DataExistsException;
@@ -23,6 +29,7 @@ import org.e_Banking.repository.SavingAccountRepository;
 import org.e_Banking.repository.UserRepository;
 import org.e_Banking.util.JwtUtil;
 import org.e_Banking.util.MessageSendingHelper;
+import org.e_Banking.util.PaymentUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -47,6 +54,8 @@ public class UserServiceImpl implements UserService {
 	private final SavingAccountRepository savingAccountRepository;
 	private final SavingAccountMapper mapper;
 	private final UserMapper userMapper;
+	private final PaymentUtil paymentUtil;
+	
 	
 	@Override
 	public ResponseEntity<ResponseDto> register(UserDto dto) {
@@ -167,7 +176,7 @@ public class UserServiceImpl implements UserService {
 		} else {
 			SavingBankAccount bankAccount = new SavingBankAccount(null,accountDto.getFullName(),accountDto.getAddress(), "EBNK000001",
 					 accountDto.getPan(), accountDto.getAadhar(), "EBANK-DEFAULT", 0.0, false,
-					false);
+					false, null);
 			savingAccountRepository.save(bankAccount);
 			user.setBankAccount(bankAccount);
 			userRepository.save(user);
@@ -175,14 +184,62 @@ public class UserServiceImpl implements UserService {
 			return ResponseEntity.status(201).body(new ResponseDto("Account Created Success ", dto));
 		}
 	}
+	
+	@Override
+	public ResponseEntity<ResponseDto> checkBalance(Principal principal) {
+		User user = getLoggedInUser(principal);
+		SavingBankAccount account = user.getBankAccount();
+		if (account == null)
+			throw new DataNotFoundException("No Bank Accounts FOund Linked with This User account");
+		else {
+			return ResponseEntity.ok(new ResponseDto("Account Found",
+					new BankBalanceDto(account.getAccountNumber(), account.getBalance())));
+		}
+	}
 
+	@Override
+	public ResponseEntity<ResponseDto> deposit(Principal principal, Map<String, Double> map) {
+		User user = getLoggedInUser(principal);
+		SavingBankAccount account = user.getBankAccount();
+		if (account == null)
+			throw new DataNotFoundException("No Bank Accounts FOund Linked with This User account");
+		else {
+			Double amount = map.get("amount");
+			RazorpayDto razorpayDto = paymentUtil.createOrder(amount);
+			return ResponseEntity.ok(new ResponseDto("Payment Initialized Complete Payment to Proceed", razorpayDto));
+		}
+	}
+
+	@Override
+	public ResponseEntity<ResponseDto> confirmPayment(Double amount, String razorpay_payment_id, Principal principal) {
+		User user = getLoggedInUser(principal);
+		SavingBankAccount account = user.getBankAccount();
+		if (account == null)
+			throw new DataNotFoundException("No Bank Accounts FOund Linked with This User account");
+		else {
+			List<BankTransactions> transactions = account.getBankTransactions();
+			if (transactions == null)
+				transactions = new LinkedList<BankTransactions>();
+			BankTransactions transaction = new BankTransactions(null, razorpay_payment_id, amount / 100, "DEPOSIT",
+					null, account.getBalance());
+			transactions.add(transaction);
+			account.setBalance(account.getBalance() + amount / 100);
+			account.setBankTransactions(transactions);
+			savingAccountRepository.save(account);
+			return ResponseEntity.ok(new ResponseDto("Deposit Success", transaction));
+		}
+	}
+	
 	private User getLoggedInUser(Principal principal) {
+		if(principal==null)
+			throw new DataNotFoundException("Not Logged in , Invalid Session");
 		String email = principal.getName();
 		User user = userRepository.findByEmail(email);
 		if (user == null)
-			throw new DataNotFoundException("Email Not Found in Database");
+			throw new DataNotFoundException("Not Logged in , Invalid Session");
 		else
 			return user;
 	}
+	
 
 }

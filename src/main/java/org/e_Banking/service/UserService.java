@@ -8,6 +8,7 @@ import org.e_Banking.dto.SavingAccountDto;
 import org.e_Banking.dto.UserDto;
 
 import java.security.Principal;
+import java.util.Map;
 
 import org.e_Banking.dto.LoginDto;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +25,9 @@ public interface UserService {
 	ResponseEntity<ResponseDto> login(LoginDto dto);
 	ResponseEntity<ResponseDto> viewSavingsAccount(Principal principal);
 	ResponseEntity<ResponseDto> createSavingsAccount(Principal principal, SavingAccountDto accountDto);
+	ResponseEntity<ResponseDto> checkBalance(Principal principal);
+	ResponseEntity<ResponseDto> deposit(Principal principal, Map<String, Double> map);
+	ResponseEntity<ResponseDto> confirmPayment(Double amount, String razorpay_payment_id, Principal principal);
 }
 
 

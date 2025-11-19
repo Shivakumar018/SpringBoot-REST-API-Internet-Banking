@@ -1,10 +1,15 @@
 package org.e_Banking.entity;
 
 
+import java.util.List;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -35,4 +40,8 @@ public class SavingBankAccount {
 	private Double balance;
 	private boolean active;
 	private boolean blocked;
+	
+
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	List<BankTransactions> bankTransactions;
 }
