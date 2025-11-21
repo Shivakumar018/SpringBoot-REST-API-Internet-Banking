@@ -1,5 +1,7 @@
 package org.e_Banking.mapper;
 
+import java.util.List;
+
 import org.e_Banking.dto.UserDto;
 import org.e_Banking.entity.User;
 import org.mapstruct.Mapper;
@@ -24,7 +26,8 @@ public abstract class UserMapper {
 
 	@Mapping(target = "password",expression = "java(\"***************\")")
 	public abstract UserDto toDto(User user);
-
+	
+	public abstract List<UserDto> toDtoList(List<User> users);
 }
 
 

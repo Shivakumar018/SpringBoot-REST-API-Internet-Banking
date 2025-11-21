@@ -1,5 +1,7 @@
 package org.e_Banking.mapper;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.annotation.processing.Generated;
 
 import org.e_Banking.dto.BankingRole;
@@ -9,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-11-18T14:23:23+0530",
+    date = "2025-11-21T09:53:09+0530",
     comments = "version: 1.5.5.Final, compiler: Eclipse JDT (IDE) 3.42.0.v20250526-2018, environment: Java 21.0.7 (Eclipse Adoptium)"
 )
 @Component
@@ -53,5 +55,19 @@ public class UserMapperImpl extends UserMapper {
         userDto.setPassword( "***************" );
 
         return userDto;
+    }
+
+    @Override
+    public List<UserDto> toDtoList(List<User> users) {
+        if ( users == null ) {
+            return null;
+        }
+
+        List<UserDto> list = new ArrayList<UserDto>( users.size() );
+        for ( User user : users ) {
+            list.add( toDto( user ) );
+        }
+
+        return list;
     }
 }
