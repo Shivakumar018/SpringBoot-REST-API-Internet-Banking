@@ -5,8 +5,6 @@ import java.security.SecureRandom;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-
 import org.e_Banking.dto.BankBalanceDto;
 import org.e_Banking.dto.LoginDto;
 import org.e_Banking.dto.OtpDto;
@@ -17,6 +15,7 @@ import org.e_Banking.dto.SavingAccountDto;
 import org.e_Banking.dto.SavingAccountResponseDto;
 import org.e_Banking.dto.TransferDto;
 import org.e_Banking.dto.UserDto;
+import org.e_Banking.dto.depositDto;
 import org.e_Banking.entity.BankTransactions;
 import org.e_Banking.entity.SavingBankAccount;
 import org.e_Banking.entity.User;
@@ -58,8 +57,7 @@ public class UserServiceImpl implements UserService {
 	private final SavingAccountMapper mapper;
 	private final UserMapper userMapper;
 	private final PaymentUtil paymentUtil;
-	
-	
+
 	@Override
 	public ResponseEntity<ResponseDto> register(UserDto dto) {
 		if (redisService.fetchUserDto(dto.getEmail()) == null) {
@@ -98,7 +96,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public ResponseEntity<ResponseDto> resendOtp(String email) {
-		if (redisService.fetchOtp(email) == 0)
+		if (redisService.fetchUserDto(email) == null)
 			throw new DataNotFoundException(email + " doesnt exist");
 		else {
 			int otp = new SecureRandom().nextInt(1000, 10000);
@@ -155,9 +153,9 @@ public class UserServiceImpl implements UserService {
 		map.put("user", userMapper.toDto(userRepository.findByEmail(dto.getEmail())));
 		return ResponseEntity.ok(new ResponseDto("Login Success", map));
 	}
-	
+
 	private User getLoggedInUser(Principal principal) {
-		if(principal==null)
+		if (principal == null)
 			throw new DataNotFoundException("Not Logged in , Invalid Session");
 		String email = principal.getName();
 		User user = userRepository.findByEmail(email);
@@ -171,8 +169,10 @@ public class UserServiceImpl implements UserService {
 	public ResponseEntity<ResponseDto> viewSavingsAccount(Principal principal) {
 		User user = getLoggedInUser(principal);
 		SavingBankAccount bankAccount = user.getBankAccount();
-		if (bankAccount == null || !bankAccount.isActive())
+		if (bankAccount == null)
 			throw new DataNotFoundException("No Bank Account Exists for " + user.getName());
+		if (!bankAccount.isActive())
+			throw new DataExistsException("Waiting for Admins Approval");
 		else {
 			return ResponseEntity.ok(new ResponseDto("Account Found", bankAccount));
 		}
@@ -188,9 +188,9 @@ public class UserServiceImpl implements UserService {
 				throw new DataExistsException("Account Still Pending for Verification Wait for some time");
 
 		} else {
-			SavingBankAccount bankAccount = new SavingBankAccount(null,accountDto.getFullName(),accountDto.getAddress(), "EBNK000001",
-					 accountDto.getPan(), accountDto.getAadhar(), "EBANK-DEFAULT", 0.0, false,
-					false, null);
+			SavingBankAccount bankAccount = new SavingBankAccount(null, accountDto.getFullName(),
+					accountDto.getAddress(), "EBNK000001", accountDto.getPan(), accountDto.getAadhar(), "EBANK-DEFAULT",
+					0.0, false, false, null);
 			savingAccountRepository.save(bankAccount);
 			user.setBankAccount(bankAccount);
 			userRepository.save(user);
@@ -198,31 +198,37 @@ public class UserServiceImpl implements UserService {
 			return ResponseEntity.status(201).body(new ResponseDto("Account Created Success ", dto));
 		}
 	}
-	
+
 	@Override
 	public ResponseEntity<ResponseDto> checkBalance(Principal principal) {
 		User user = getLoggedInUser(principal);
 		SavingBankAccount account = user.getBankAccount();
-		if (account == null)
-			throw new DataNotFoundException("No Bank Accounts FOund Linked with This User account");
+		if (account == null || !account.isActive())
+			throw new DataNotFoundException("No Bank Accounts Found Linked with This User account");
 		else {
 			return ResponseEntity.ok(new ResponseDto("Account Found",
 					new BankBalanceDto(account.getAccountNumber(), account.getBalance())));
 		}
 	}
 
-	@Override
-	public ResponseEntity<ResponseDto> deposit(Principal principal, Map<String, Double> map) {
-		User user = getLoggedInUser(principal);
-		SavingBankAccount account = user.getBankAccount();
-		if (account == null)
-			throw new DataNotFoundException("No Bank Accounts FOund Linked with This User account");
-		else {
-			Double amount = map.get("amount");
-			RazorpayDto razorpayDto = paymentUtil.createOrder(amount);
-			return ResponseEntity.ok(new ResponseDto("Payment Initialized Complete Payment to Proceed", razorpayDto));
-		}
+	public ResponseEntity<ResponseDto> deposit(Principal principal, depositDto dto) {
+	    User user = getLoggedInUser(principal);
+	    SavingBankAccount account = user.getBankAccount();
+
+	    if (account == null) {
+	        throw new DataNotFoundException(
+	            "No Bank Account Found Linked with This User Account"
+	        );
+	    }
+
+	    Double amount = dto.getAmount();
+	    RazorpayDto razorpayDto = paymentUtil.createOrder(amount);
+
+	    return ResponseEntity.ok(
+	        new ResponseDto("Payment Initialized. Complete Payment to Proceed", razorpayDto)
+	    );
 	}
+
 
 	@Override
 	public ResponseEntity<ResponseDto> confirmPayment(Double amount, String razorpay_payment_id, Principal principal) {
@@ -243,7 +249,7 @@ public class UserServiceImpl implements UserService {
 			return ResponseEntity.ok(new ResponseDto("Deposit Success", transaction));
 		}
 	}
-	
+
 	@Override
 	@Transactional
 	public ResponseEntity<ResponseDto> transfer(Principal principal, TransferDto dto) {
@@ -254,6 +260,8 @@ public class UserServiceImpl implements UserService {
 		if (fromAccount == null)
 			throw new DataNotFoundException("No Bank Accounts Found Linked with This User account");
 		else {
+			if (fromAccount.getAccountNumber() == toAccount.getAccountNumber())
+				throw new MissMatchException("To account Number Can not be Same as From");
 			if (!fromAccount.isActive() || fromAccount.isBlocked() || toAccount.isBlocked() || !toAccount.isActive())
 				throw new PaymentFailedException("Account is Not Active or Blocked Contact Admin");
 			else {
@@ -287,8 +295,5 @@ public class UserServiceImpl implements UserService {
 		}
 
 	}
-	
-
-	
 
 }

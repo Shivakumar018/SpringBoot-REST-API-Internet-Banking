@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.e_Banking.dto.BankingRole;
-import org.e_Banking.entity.SavingBankAccount;
 import org.e_Banking.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 

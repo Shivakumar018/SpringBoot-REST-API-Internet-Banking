@@ -1,11 +1,11 @@
 package org.e_Banking.controller;
 
 import java.security.Principal;
-import java.util.Map;
 
 import org.e_Banking.dto.ResponseDto;
 import org.e_Banking.dto.SavingAccountDto;
 import org.e_Banking.dto.TransferDto;
+import org.e_Banking.dto.depositDto;
 import org.e_Banking.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,8 +42,8 @@ public class UserController {
 	}
 
 	@PatchMapping("/deposit")
-	public ResponseEntity<ResponseDto> intializeDeposit(@RequestBody Map<String, Double> map, Principal principal) {
-		return userService.deposit(principal, map);
+	public ResponseEntity<ResponseDto> intializeDeposit(@RequestBody depositDto ddto, Principal principal) {
+		return userService.deposit(principal, ddto);
 	}
 
 	@PostMapping("/confirm-deposit")
@@ -53,7 +53,7 @@ public class UserController {
 	}
 	
 
-	@PostMapping("/transafer")
+	@PostMapping("/transfer")
 	public ResponseEntity<ResponseDto> transferAmount(Principal principal,@RequestBody TransferDto dto) {
 		return userService.transfer(principal,dto);
 	}
