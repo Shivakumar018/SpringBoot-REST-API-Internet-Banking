@@ -6,6 +6,8 @@ import org.e_Banking.dto.ResponseDto;
 import org.e_Banking.dto.SavingAccountDto;
 import org.e_Banking.dto.TransferDto;
 import org.e_Banking.dto.depositDto;
+import org.e_Banking.dto.loanDto;
+import org.e_Banking.entity.BankTransactions;
 import org.e_Banking.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -57,5 +59,27 @@ public class UserController {
 	public ResponseEntity<ResponseDto> transferAmount(Principal principal,@RequestBody TransferDto dto) {
 		return userService.transfer(principal,dto);
 	}
+
+	@GetMapping("/transaction")
+	public ResponseEntity<ResponseDto> transaction(Principal principal) {
+		return userService.Banktansaction(principal);
+	}
+
+	@PostMapping("/loan")
+	public ResponseEntity<ResponseDto> applyForLoan(Principal principal,@RequestBody loanDto dto) {
+		return userService.loan(principal,dto);
+	}
+
+	@GetMapping("/loan")
+	public ResponseEntity<ResponseDto> viewLoan(Principal principal) {
+		return userService.viewloan(principal);
+	}
+
+	@PostMapping("/repayLoan")
+	public ResponseEntity<ResponseDto> repayLoan(Principal principal,@RequestBody loanDto dto) {
+		return userService.repayloan(principal,dto);
+	}
+
+
 
 }

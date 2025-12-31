@@ -16,6 +16,7 @@ import org.e_Banking.dto.SavingAccountResponseDto;
 import org.e_Banking.dto.TransferDto;
 import org.e_Banking.dto.UserDto;
 import org.e_Banking.dto.depositDto;
+import org.e_Banking.dto.loanDto;
 import org.e_Banking.entity.BankTransactions;
 import org.e_Banking.entity.SavingBankAccount;
 import org.e_Banking.entity.User;
@@ -190,7 +191,7 @@ public class UserServiceImpl implements UserService {
 		} else {
 			SavingBankAccount bankAccount = new SavingBankAccount(null, accountDto.getFullName(),
 					accountDto.getAddress(), "EBNK000001", accountDto.getPan(), accountDto.getAadhar(), "EBANK-DEFAULT",
-					0.0, false, false, null);
+					0.0, false, false, 0.0,false, null,null);
 			savingAccountRepository.save(bankAccount);
 			user.setBankAccount(bankAccount);
 			userRepository.save(user);
@@ -214,16 +215,13 @@ public class UserServiceImpl implements UserService {
 	public ResponseEntity<ResponseDto> deposit(Principal principal, depositDto dto) {
 	    User user = getLoggedInUser(principal);
 	    SavingBankAccount account = user.getBankAccount();
-
 	    if (account == null) {
 	        throw new DataNotFoundException(
 	            "No Bank Account Found Linked with This User Account"
 	        );
 	    }
-
 	    Double amount = dto.getAmount();
 	    RazorpayDto razorpayDto = paymentUtil.createOrder(amount);
-
 	    return ResponseEntity.ok(
 	        new ResponseDto("Payment Initialized. Complete Payment to Proceed", razorpayDto)
 	    );
@@ -249,6 +247,28 @@ public class UserServiceImpl implements UserService {
 			return ResponseEntity.ok(new ResponseDto("Deposit Success", transaction));
 		}
 	}
+
+	@Override
+	public ResponseEntity<ResponseDto> Banktansaction(Principal principal) {
+
+    User user = getLoggedInUser(principal);
+    SavingBankAccount account = user.getBankAccount();
+
+    if (account == null) {
+        throw new DataNotFoundException("No bank account found");
+    }
+
+    List<BankTransactions> transactions = account.getBankTransactions();
+
+    if (transactions == null || transactions.isEmpty()) {
+        throw new DataNotFoundException("No transactions found");
+    }
+
+    return ResponseEntity.ok(
+        new ResponseDto("Transactions found", transactions)
+    );
+}
+
 
 	@Override
 	@Transactional
@@ -295,5 +315,64 @@ public class UserServiceImpl implements UserService {
 		}
 
 	}
+
+	@Override
+	public ResponseEntity<ResponseDto> loan(Principal principal, loanDto dto) {
+		User user=getLoggedInUser(principal);
+		SavingBankAccount fromAccount = user.getBankAccount();
+		Long accountNum = fromAccount.getAccountNumber();
+		if(fromAccount.getLoan()!=0.0){
+			throw new DataNotFoundException("your not eligible to apply loan!!! pls clear the previous loan");
+		}else if (!accountNum.equals(dto.getAccountNumber())){
+			throw new MissMatchException("Account number mismatch");
+		}else{
+			fromAccount.setLoan(dto.getAmount());
+			fromAccount.setLoanActive(false);
+			savingAccountRepository.save(fromAccount);
+			return ResponseEntity.ok(new ResponseDto("loan applied sucessfully", dto.getAmount()));
+		}
+		
+	}
+
+	@Override
+	public ResponseEntity<ResponseDto> repayloan(Principal principal, loanDto dto) {
+		User user=getLoggedInUser(principal);
+		SavingBankAccount fromAccount = user.getBankAccount();
+		Long accountNum = fromAccount.getAccountNumber();
+		if (!accountNum.equals(dto.getAccountNumber())){
+			throw new MissMatchException("Account number mismatch");
+		}
+		if(fromAccount.getLoan()<=0){
+			throw new DataNotFoundException("you dont have any pending loan");
+		}else if(fromAccount.getLoan()<dto.getAmount()){
+			throw new MissMatchException("there is problem pls check the enterd amount");
+		}else{
+			Double amt=fromAccount.getLoan()-dto.getAmount();
+			fromAccount.setLoan(amt);
+			if (amt == 0) {
+    			fromAccount.setLoanActive(false);
+			} 
+			savingAccountRepository.save(fromAccount);
+			return ResponseEntity.ok(new ResponseDto("loan cleard", amt));
+		}
+		
+	}
+
+	@Override
+	public ResponseEntity<ResponseDto> viewloan(Principal principal) {
+		User user = getLoggedInUser(principal);
+		SavingBankAccount bankAccount = user.getBankAccount();
+		if (bankAccount.getLoan() <= 0)
+			throw new DataNotFoundException("No pendding loan ");
+		else if(bankAccount.getLoan() != 0 && !(user.getBankAccount().isLoanActive())){
+			throw new DataNotFoundException("you applied for loan but not appproved by admin ");
+		}else{
+			return ResponseEntity.ok(new ResponseDto("you have pending loan ", bankAccount.getLoan()));
+		}
+	}
+
+
+
+
 
 }

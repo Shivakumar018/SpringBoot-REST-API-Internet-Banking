@@ -99,4 +99,13 @@ public class AdminServiceImpl implements AdminService {
 		return ResponseEntity.ok(new ResponseDto("Account Blocked Success", account));
 	}
 
+	@Override
+	public ResponseEntity<ResponseDto> approveLoan(Long accountNumber) {
+		SavingBankAccount account = savingAccountRepository.findById(accountNumber)
+				.orElseThrow(() -> new DataNotFoundException("No Account Details Found"));
+		account.setLoanActive(true);
+		savingAccountRepository.save(account);
+		return ResponseEntity.ok(new ResponseDto("Loan Approved Success", account));
+	}
+
 }

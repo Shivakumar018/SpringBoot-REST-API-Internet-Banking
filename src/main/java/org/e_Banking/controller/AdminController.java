@@ -58,4 +58,9 @@ public class AdminController {
 	public ResponseEntity<ResponseDto> unblockAccount(@PathVariable Long accountNumber){
 		return adminService.unblockAccount(accountNumber);
 	}
+
+	@PatchMapping("/approve/loan/{accountNumber}")
+	public ResponseEntity<ResponseDto> approveLoan(@PathVariable Long accountNumber) {
+		return adminService.approveLoan(accountNumber);
+	}
 }

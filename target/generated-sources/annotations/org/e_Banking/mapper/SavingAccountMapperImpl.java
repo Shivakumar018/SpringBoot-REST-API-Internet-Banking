@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-11-21T09:50:26+0530",
-    comments = "version: 1.5.5.Final, compiler: Eclipse JDT (IDE) 3.42.0.v20250526-2018, environment: Java 21.0.7 (Eclipse Adoptium)"
+    date = "2026-01-01T01:19:27+0530",
+    comments = "version: 1.5.5.Final, compiler: Eclipse JDT (IDE) 3.44.0.v20251118-1623, environment: Java 21.0.9 (Eclipse Adoptium)"
 )
 @Component
 public class SavingAccountMapperImpl implements SavingAccountMapper {
@@ -22,10 +22,10 @@ public class SavingAccountMapperImpl implements SavingAccountMapper {
         SavingAccountResponseDto savingAccountResponseDto = new SavingAccountResponseDto();
 
         savingAccountResponseDto.setAccountNumber( entity.getAccountNumber() );
-        savingAccountResponseDto.setAddress( entity.getAddress() );
-        savingAccountResponseDto.setBalance( entity.getBalance() );
         savingAccountResponseDto.setFullName( entity.getFullName() );
+        savingAccountResponseDto.setAddress( entity.getAddress() );
         savingAccountResponseDto.setIfscCode( entity.getIfscCode() );
+        savingAccountResponseDto.setBalance( entity.getBalance() );
 
         return savingAccountResponseDto;
     }

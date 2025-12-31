@@ -23,4 +23,6 @@ public interface AdminService {
 
 	ResponseEntity<ResponseDto> unblockAccount(Long accountNumber);
 
+    ResponseEntity<ResponseDto> approveLoan(Long accountNumber);
+
 }

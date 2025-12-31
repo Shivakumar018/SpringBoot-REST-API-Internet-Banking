@@ -40,8 +40,13 @@ public class SavingBankAccount {
 	private Double balance;
 	private boolean active;
 	private boolean blocked;
+	private Double loan;
+	private boolean loanActive;
 	
 
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	List<BankTransactions> bankTransactions;
+
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	List<BankTransactions> loanTransactions;
 }

@@ -1,10 +1,12 @@
 package org.e_Banking.exceptionHandling;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-@Data
 @AllArgsConstructor
+@NoArgsConstructor
+@Getter
 public class MissMatchException extends RuntimeException{
 	private String message;
 }
