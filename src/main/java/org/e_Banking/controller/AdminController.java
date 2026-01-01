@@ -23,6 +23,11 @@ public class AdminController {
 		return adminService.getPendingAccounts();
 	}
 
+	@GetMapping("/loan/pending")
+	public ResponseEntity<ResponseDto> getPendingloan() {
+		return adminService.getPendingLoan();
+	}
+
 	@GetMapping("/user/{accountNumber}")
 	public ResponseEntity<ResponseDto> getUser(@PathVariable Long accountNumber) {
 		return adminService.getUser(accountNumber);
@@ -32,30 +37,29 @@ public class AdminController {
 	public ResponseEntity<ResponseDto> approveAccount(@PathVariable Long accountNumber) {
 		return adminService.approveBankAccount(accountNumber);
 	}
-	
 
 	@GetMapping("/users")
-	public ResponseEntity<ResponseDto> getAllUsers(){
+	public ResponseEntity<ResponseDto> getAllUsers() {
 		return adminService.getAlluser();
 	}
-	
+
 	@GetMapping("/bank/{email}")
-	public ResponseEntity<ResponseDto> getBankAccount(@PathVariable String email){
+	public ResponseEntity<ResponseDto> getBankAccount(@PathVariable String email) {
 		return adminService.getBankAccount(email);
 	}
-	
+
 	@GetMapping("/transactions/{accountNumber}")
-	public ResponseEntity<ResponseDto> getBankTransactions(@PathVariable Long accountNumber){
+	public ResponseEntity<ResponseDto> getBankTransactions(@PathVariable Long accountNumber) {
 		return adminService.getBankTransactions(accountNumber);
 	}
-	
+
 	@PatchMapping("/block/{accountNumber}")
-	public ResponseEntity<ResponseDto> blockAccount(@PathVariable Long accountNumber){
+	public ResponseEntity<ResponseDto> blockAccount(@PathVariable Long accountNumber) {
 		return adminService.blockAccount(accountNumber);
 	}
-	
+
 	@PatchMapping("/unblock/{accountNumber}")
-	public ResponseEntity<ResponseDto> unblockAccount(@PathVariable Long accountNumber){
+	public ResponseEntity<ResponseDto> unblockAccount(@PathVariable Long accountNumber) {
 		return adminService.unblockAccount(accountNumber);
 	}
 

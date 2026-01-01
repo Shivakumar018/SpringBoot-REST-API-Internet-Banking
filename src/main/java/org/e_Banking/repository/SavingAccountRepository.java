@@ -10,4 +10,6 @@ public interface SavingAccountRepository extends JpaRepository<SavingBankAccount
 
 	List<SavingBankAccount> findByActiveFalse();
 
+    List<SavingBankAccount> findByLoanActiveFalse();
+
 }

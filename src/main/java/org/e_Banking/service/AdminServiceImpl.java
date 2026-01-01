@@ -49,7 +49,7 @@ public class AdminServiceImpl implements AdminService {
 		savingAccountRepository.save(account);
 		return ResponseEntity.ok(new ResponseDto("Account Approved Success", account));
 	}
-	
+
 	@Override
 	public ResponseEntity<ResponseDto> getAlluser() {
 		List<User> users = userRepository.findByRole(BankingRole.USER);
@@ -61,12 +61,12 @@ public class AdminServiceImpl implements AdminService {
 
 	@Override
 	public ResponseEntity<ResponseDto> getBankAccount(String email) {
-		User user=userRepository.findByEmail(email);
-		if(user==null)
+		User user = userRepository.findByEmail(email);
+		if (user == null)
 			throw new DataNotFoundException("Invalid Email");
 		else {
-			SavingBankAccount account=user.getBankAccount();
-			if(account!=null && account.isActive())
+			SavingBankAccount account = user.getBankAccount();
+			if (account != null && account.isActive())
 				return ResponseEntity.ok(new ResponseDto("Account Found", account));
 			else
 				throw new DataNotFoundException("No Account for the User");
@@ -75,17 +75,19 @@ public class AdminServiceImpl implements AdminService {
 
 	@Override
 	public ResponseEntity<ResponseDto> getBankTransactions(Long accountNumber) {
-		SavingBankAccount account=savingAccountRepository.findById(accountNumber).orElseThrow(()->new DataNotFoundException("Invalid Account Number"));
-		List<BankTransactions> transactions=account.getBankTransactions();
-		if(transactions.isEmpty())
+		SavingBankAccount account = savingAccountRepository.findById(accountNumber)
+				.orElseThrow(() -> new DataNotFoundException("Invalid Account Number"));
+		List<BankTransactions> transactions = account.getBankTransactions();
+		if (transactions.isEmpty())
 			throw new DataNotFoundException("No Transactions Found");
-		else 
+		else
 			return ResponseEntity.ok(new ResponseDto("Transactions Found", transactions));
 	}
 
 	@Override
 	public ResponseEntity<ResponseDto> blockAccount(Long accountNumber) {
-		SavingBankAccount account=savingAccountRepository.findById(accountNumber).orElseThrow(()->new DataNotFoundException("Invalid Account Number"));
+		SavingBankAccount account = savingAccountRepository.findById(accountNumber)
+				.orElseThrow(() -> new DataNotFoundException("Invalid Account Number"));
 		account.setBlocked(true);
 		savingAccountRepository.save(account);
 		return ResponseEntity.ok(new ResponseDto("Account Blocked Success", account));
@@ -93,7 +95,8 @@ public class AdminServiceImpl implements AdminService {
 
 	@Override
 	public ResponseEntity<ResponseDto> unblockAccount(Long accountNumber) {
-		SavingBankAccount account=savingAccountRepository.findById(accountNumber).orElseThrow(()->new DataNotFoundException("Invalid Account Number"));
+		SavingBankAccount account = savingAccountRepository.findById(accountNumber)
+				.orElseThrow(() -> new DataNotFoundException("Invalid Account Number"));
 		account.setBlocked(false);
 		savingAccountRepository.save(account);
 		return ResponseEntity.ok(new ResponseDto("Account Blocked Success", account));
@@ -106,6 +109,16 @@ public class AdminServiceImpl implements AdminService {
 		account.setLoanActive(true);
 		savingAccountRepository.save(account);
 		return ResponseEntity.ok(new ResponseDto("Loan Approved Success", account));
+	}
+
+	@Override
+	public ResponseEntity<ResponseDto> getPendingLoan() {
+		List<SavingBankAccount> list = savingAccountRepository.findByLoanActiveFalse();
+		if (list.isEmpty())
+			throw new DataNotFoundException("No Accounts Pending for Verfication");
+		else {
+			return ResponseEntity.ok(new ResponseDto("Accounts Found", list));
+		}
 	}
 
 }

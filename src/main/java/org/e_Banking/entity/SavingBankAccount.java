@@ -46,7 +46,4 @@ public class SavingBankAccount {
 
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	List<BankTransactions> bankTransactions;
-
-	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	List<BankTransactions> loanTransactions;
 }

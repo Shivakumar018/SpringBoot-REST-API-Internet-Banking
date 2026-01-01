@@ -3,15 +3,13 @@ package org.e_Banking.mapper;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.processing.Generated;
-
-import org.e_Banking.dto.BankingRole;
 import org.e_Banking.dto.UserDto;
 import org.e_Banking.entity.User;
 import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-12-31T23:16:52+0530",
+    date = "2026-01-01T23:53:34+0530",
     comments = "version: 1.5.5.Final, compiler: Eclipse JDT (IDE) 3.44.0.v20251118-1623, environment: Java 21.0.9 (Eclipse Adoptium)"
 )
 @Component

@@ -7,7 +7,6 @@ import org.e_Banking.dto.SavingAccountDto;
 import org.e_Banking.dto.TransferDto;
 import org.e_Banking.dto.depositDto;
 import org.e_Banking.dto.loanDto;
-import org.e_Banking.entity.BankTransactions;
 import org.e_Banking.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,7 +36,7 @@ public class UserController {
 			@RequestBody SavingAccountDto accountDto) {
 		return userService.createSavingsAccount(principal, accountDto);
 	}
-	
+
 	@GetMapping("/bank-balance")
 	public ResponseEntity<ResponseDto> checkBalance(Principal principal) {
 		return userService.checkBalance(principal);
@@ -53,11 +52,10 @@ public class UserController {
 			@RequestParam String razorpay_payment_id, Principal principal) {
 		return userService.confirmPayment(amount, razorpay_payment_id, principal);
 	}
-	
 
 	@PostMapping("/transfer")
-	public ResponseEntity<ResponseDto> transferAmount(Principal principal,@RequestBody TransferDto dto) {
-		return userService.transfer(principal,dto);
+	public ResponseEntity<ResponseDto> transferAmount(Principal principal, @RequestBody TransferDto dto) {
+		return userService.transfer(principal, dto);
 	}
 
 	@GetMapping("/transaction")
@@ -66,8 +64,8 @@ public class UserController {
 	}
 
 	@PostMapping("/loan")
-	public ResponseEntity<ResponseDto> applyForLoan(Principal principal,@RequestBody loanDto dto) {
-		return userService.loan(principal,dto);
+	public ResponseEntity<ResponseDto> applyForLoan(Principal principal, @RequestBody loanDto dto) {
+		return userService.loan(principal, dto);
 	}
 
 	@GetMapping("/loan")
@@ -76,10 +74,7 @@ public class UserController {
 	}
 
 	@PostMapping("/repayLoan")
-	public ResponseEntity<ResponseDto> repayLoan(Principal principal,@RequestBody loanDto dto) {
-		return userService.repayloan(principal,dto);
+	public ResponseEntity<ResponseDto> repayLoan(Principal principal, @RequestBody loanDto dto) {
+		return userService.repayloan(principal, dto);
 	}
-
-
-
 }

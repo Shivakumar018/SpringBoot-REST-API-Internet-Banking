@@ -25,4 +25,6 @@ public interface AdminService {
 
     ResponseEntity<ResponseDto> approveLoan(Long accountNumber);
 
+    ResponseEntity<ResponseDto> getPendingLoan();
+
 }
